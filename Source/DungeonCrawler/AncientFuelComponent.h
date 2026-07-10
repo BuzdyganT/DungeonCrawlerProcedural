@@ -19,6 +19,18 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fuel")
+	float MaxFuel = 100.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fuel")
+	float CurrentFuel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fuel")
+	float DrainRate = 2.0f; // Ile paliwa znika co sekundę
+
+	// Zmienna do obsługi czasu i funkcja zjadająca paliwo
+	FTimerHandle FuelTimerHandle;
+	void DrainFuel();
 
 public:	
 	// Called every frame

@@ -2,6 +2,7 @@
 
 
 #include "AncientFuelComponent.h"
+#include "TimerManager.h"
 
 // Sets default values for this component's properties
 UAncientFuelComponent::UAncientFuelComponent()
@@ -18,7 +19,10 @@ UAncientFuelComponent::UAncientFuelComponent()
 void UAncientFuelComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	CurrentFuel = MaxFuel;
+	
+	// Odpala funkcję DrainFuel co 1 sekundę w pętli (true)
+	GetWorld()->GetTimerManager().SetTimer(FuelTimerHandle, this, &UAncientFuelComponent::DrainFuel, 1.0f, true);
 	// ...
 	
 }
@@ -30,5 +34,19 @@ void UAncientFuelComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UAncientFuelComponent::DrainFuel()
+{
+	CurrentFuel -= DrainRate;
+	
+	UE_LOG(LogTemp, Warning, TEXT("Paliwo: %f"), CurrentFuel);
+
+	if (CurrentFuel <= 0.0f)
+	{
+		CurrentFuel = 0.0f;
+		UE_LOG(LogTemp, Error, TEXT("Koniec paliwa! Czas na teleport."));
+		GetWorld()->GetTimerManager().ClearTimer(FuelTimerHandle); 
+	}
 }
 
