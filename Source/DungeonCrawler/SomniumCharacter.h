@@ -40,10 +40,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* LookAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ShootAction;
 
-	// Funkcje ruchu i rozglądania
+	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Shoot(const FInputActionValue& Value);
 
 public:	
 	// Called every frame

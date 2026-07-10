@@ -3,6 +3,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "DrawDebugHelpers.h"
 
 ASomniumCharacter::ASomniumCharacter()
 {
@@ -48,6 +49,7 @@ void ASomniumCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASomniumCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASomniumCharacter::Look);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &ASomniumCharacter::Shoot);
 	}
 }
 
@@ -70,5 +72,26 @@ void ASomniumCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void ASomniumCharacter::Shoot(const FInputActionValue& Value)
+{
+	FVector Start = FirstPersonCamera->GetComponentLocation();
+	FVector ForwardVector = FirstPersonCamera->GetForwardVector();
+	FVector End = Start + (ForwardVector * 2000.f); // Zasięg 20 metrów
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this); // Nie chcemy postrzelić samych siebie
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
+
+	if (bHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skaner trafil w: %s"), *HitResult.GetActor()->GetName());
+		DrawDebugBox(GetWorld(), HitResult.ImpactPoint, FVector(5.f), FColor::Green, false, 2.0f);
 	}
 }
