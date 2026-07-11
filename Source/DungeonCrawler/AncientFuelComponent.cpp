@@ -3,6 +3,8 @@
 
 #include "AncientFuelComponent.h"
 #include "TimerManager.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 UAncientFuelComponent::UAncientFuelComponent()

@@ -43,6 +43,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ShootAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<class AOrganGun> OrganGunClass;
+
+	UPROPERTY()
+	class AOrganGun* EquippedGun;
 
 	
 	void Move(const FInputActionValue& Value);

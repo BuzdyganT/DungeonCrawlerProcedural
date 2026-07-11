@@ -4,6 +4,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "DrawDebugHelpers.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
+#include "OrganGun.h"
 
 ASomniumCharacter::ASomniumCharacter()
 {
@@ -32,6 +36,20 @@ void ASomniumCharacter::BeginPlay()
 			{
 				Subsystem->AddMappingContext(MouseLookMappingContext, 1);
 			}
+		}
+	}
+	if (OrganGunClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		EquippedGun = GetWorld()->SpawnActor<AOrganGun>(OrganGunClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+        
+		if (EquippedGun && FirstPersonCamera)
+		{
+			EquippedGun->AttachToComponent(FirstPersonCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			EquippedGun->SetActorRelativeLocation(FVector(40.0f, 20.0f, -10.0f)); 
 		}
 	}
 }
@@ -77,21 +95,11 @@ void ASomniumCharacter::Look(const FInputActionValue& Value)
 
 void ASomniumCharacter::Shoot(const FInputActionValue& Value)
 {
-	FVector Start = FirstPersonCamera->GetComponentLocation();
-	FVector ForwardVector = FirstPersonCamera->GetForwardVector();
-	FVector End = Start + (ForwardVector * 2000.f); // Zasięg 20 metrów
-
-	FHitResult HitResult;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this); // Nie chcemy postrzelić samych siebie
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
-
-	if (bHit)
+	if (EquippedGun && FirstPersonCamera)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skaner trafil w: %s"), *HitResult.GetActor()->GetName());
-		DrawDebugBox(GetWorld(), HitResult.ImpactPoint, FVector(5.f), FColor::Green, false, 2.0f);
+		FVector Start = FirstPersonCamera->GetComponentLocation();
+		FVector ForwardVector = FirstPersonCamera->GetForwardVector();
+        
+		EquippedGun->Fire(Start, ForwardVector);
 	}
 }
